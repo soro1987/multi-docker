@@ -11,7 +11,7 @@ script:
   - docker run soroamet/react-test npm test -- --coverage
 
 after_success:
-  - docker build -t soroamet/multi-client ./client
+  - docker build -t soroamet/multi-client -f ./client/Dockerfile
   - docker build -t soroamet/multi-nginx ./nginx
   - docker build -t soroamet/multi-server ./server
   - docker build -t soroamet/multi-worker ./worker
