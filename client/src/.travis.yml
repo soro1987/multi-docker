@@ -1,0 +1,40 @@
+sudo: required
+language: generic
+
+services:
+  - docker
+
+before_install:
+  - docker build -t soroamet/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run soroamet/docker-react-tuto npm test -- --coverage
+
+after_success:
+  - docker build -t soroamet/multi-client ./client
+  - docker build -t soroamet/multi-nginx ./nginx
+  - docker build -t soroamet/multi-server ./server
+  - docker build -t soroamet/multi-worker ./worker
+
+  #Log in to the docker cli
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  #Take those images and push them to docker hub
+  - docker push soroamet/multi-client
+  - docker push soroamet/multi-nginx
+  - docker push soroamet/multi-server
+  - docker push soroamet/multi-worker
+# deploy:
+#   skip_cleanup: true
+#   provider: elasticbeanstalk
+#   region: "eu-west-3"
+#   app: "docker-react-tuto"
+#   env: "Dockerreacttuto-env"
+#   bucket_name: "elasticbeanstalk-eu-west-3-114194448940"
+#   bucket_path: "docker-react-tuto"
+#   on:
+#     branch: master
+#   access_key_id: $AWS_ACCESS_KEY2
+#   secret_access_key: "$AWS_SECRET_KEY2"
+# secret_access_key:
+#   secure: "$AWS_SECRET_KEY"
